@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
  
-import scheduler
+import time
 
 try:
     import RPi.GPIO as GPIO
@@ -20,7 +20,7 @@ try:
     
         def do_cycle(self, cycle_duty):
             self._servo.ChangeDutyCycle(cycle_duty)
-            scheduler.sleep(1.0)
+            time.sleep(1.0)
     
         def clean(self):
             self._servo.stop()
