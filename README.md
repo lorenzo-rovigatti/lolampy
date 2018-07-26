@@ -8,4 +8,3 @@ lolampy requires python3 and the following libs (installable with pip3):
 * imapclient
 * picamera
 * python-daemon
-

@@ -24,14 +24,3 @@ class GmailWrapper(object):
 
     def mark_as_read(self, ids):
         return self.server.set_flags(ids, [SEEN, ])
-
-if __name__ == '__main__':
-    with open("user") as f:
-        username = f.readline().strip()
-
-    with open("pwd") as f:
-        pwd = f.readline().strip()
-
-    wrapper = GmailWrapper(username, pwd)
-    ids = wrapper.get_unread_ids()
-    print(wrapper.mark_as_read(ids))
