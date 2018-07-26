@@ -13,6 +13,18 @@ CWD = os.getcwd()
 PID_FILE = os.path.join(CWD, "lolampy.pid")
 LOG_FILE = os.path.join(CWD, "lolampy.log")
 
+def feed():
+    servo = Servo(18)
+    servo.start()
+
+    base_duty = 7.5
+    base_delta_duty = 5
+    servo.do_cycle(base_duty - base_delta_duty)
+    servo.do_cycle(base_duty + 2. * base_delta_duty)
+    servo.do_cycle(base_duty - base_delta_duty)
+
+    servo.clean()
+
 if __name__ == '__main__':
     pid_file = TimeoutPIDLockFile(PID_FILE)
     with open(LOG_FILE, "w+") as log_file:
@@ -32,19 +44,9 @@ if __name__ == '__main__':
 
             while True:
                 wrapper = GmailWrapper(username, pwd)
-                ids = wrapper.get_unread_ids_by_subject("gira")
+                ids = wrapper.get_unread_ids_by_subject("cibo")
                 if len(ids) > 0:
                     wrapper.mark_as_read(ids)
-
-                    servo = Servo(18)
-                    servo.start()
-
-                    base_duty = 7.5
-                    base_delta_duty = 5
-                    servo.do_cycle(base_duty - base_delta_duty)
-                    servo.do_cycle(base_duty + 2. * base_delta_duty)
-                    servo.do_cycle(base_duty - base_delta_duty)
-
-                    servo.clean()
-
+                    feed()
                 sleep(10)
+
