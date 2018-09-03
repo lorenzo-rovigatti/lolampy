@@ -1,0 +1,10 @@
+[general]
+sleeping_time = 10
+
+[email]
+username = myusername
+password = mypassword
+
+[scheduler]
+type = fixed
+times = 8:30,16:00,23:00

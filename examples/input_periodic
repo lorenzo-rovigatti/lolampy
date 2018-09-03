@@ -6,5 +6,6 @@ username = myusername
 password = mypassword
 
 [scheduler]
+type = periodic
 start_on = now
 feed_every = 00:01

@@ -6,10 +6,11 @@ import daemon
 import os
 import sys
 import configparser
+from datetime import datetime
 
 from servo import Servo
 from mail import GmailWrapper
-from scheduler import Scheduler
+from scheduler import build_scheduler
 
 CWD = os.getcwd()
 
@@ -17,6 +18,7 @@ PID_FILE = os.path.join(CWD, "lolampy.pid")
 LOG_FILE = os.path.join(CWD, "lolampy.log")
 
 def feed(config):
+    print("%s: feeding" % datetime.now(), file=sys.stderr)
     servo = Servo(18)
     servo.start()
 
@@ -54,7 +56,7 @@ if __name__ == '__main__':
         sleeping_time = config.getint("general", "sleeping_time")
         username = config.get("email", "username")
         pwd = config.get("email", "password")
-        scheduler = Scheduler(config)
+        scheduler = build_scheduler(config)
     except BaseException as e:
         print("Caught the following exception during the parsing of the configuration file: %s" % str(e))
         exit(1)
