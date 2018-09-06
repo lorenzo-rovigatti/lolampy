@@ -25,7 +25,7 @@ def feed(config):
     base_duty = 7.5
     base_delta_duty = 5
     servo.do_cycle(base_duty - base_delta_duty)
-    servo.do_cycle(base_duty + 2. * base_delta_duty)
+    servo.do_cycle(base_duty + base_delta_duty)
     servo.do_cycle(base_duty - base_delta_duty)
 
     servo.clean()
@@ -78,10 +78,14 @@ if __name__ == '__main__':
                     scheduler.set_next()
                 
                 # check the email
-                wrapper = GmailWrapper(username, pwd)
-                ids = wrapper.get_unread_ids_by_subject("cibo")
-                if len(ids) > 0:
-                    wrapper.mark_as_read(ids)
-                    feed(config)
+                try:
+                    wrapper = GmailWrapper(username, pwd)
+                    ids = wrapper.get_unread_ids_by_subject("cibo")
+                    if len(ids) > 0:
+                        wrapper.mark_as_read(ids)
+                        feed(config)
                     
-                sleep(sleeping_time)
+                    sleep(sleeping_time)
+                except BaseException as e:
+                    print("Caught the followin exception while trying to access the email: %s" % str(e))
+

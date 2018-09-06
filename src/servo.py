@@ -7,7 +7,7 @@ try:
 
     class Servo(object):
         frequency = 50
-        base_duty = 7.5
+        base_duty = 12.5
     
         def __init__(self, channel):
             self.channel = channel
@@ -20,7 +20,7 @@ try:
     
         def do_cycle(self, cycle_duty):
             self._servo.ChangeDutyCycle(cycle_duty)
-            time.sleep(1.0)
+            time.sleep(0.7)
     
         def clean(self):
             self._servo.stop()
