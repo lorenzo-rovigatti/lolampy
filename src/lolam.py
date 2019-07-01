@@ -38,7 +38,7 @@ def get_config(config_file):
         exit(1)
     
     defaults = {
-
+        "use_email" : True
     }
     
     config = configparser.SafeConfigParser(defaults=defaults)
@@ -52,40 +52,46 @@ if __name__ == '__main__':
         exit(1)
         
     config = get_config(sys.argv[1])
-    try:
-        sleeping_time = config.getint("general", "sleeping_time")
-        username = config.get("email", "username")
-        pwd = config.get("email", "password")
-        scheduler = build_scheduler(config)
-    except BaseException as e:
-        print("Caught the following exception during the parsing of the configuration file: %s" % str(e))
-        exit(1)
-    
     pid_file = TimeoutPIDLockFile(PID_FILE)
+    
     with open(LOG_FILE, "w+") as log_file:
+        # start the daemon
         daemon_context = daemon.DaemonContext(
             stdout=log_file,
             stderr=log_file,
             pidfile=pid_file,
             working_directory = CWD
         )
-
+        
         with daemon_context:
+            # initialise the scheduler
+            try:
+                use_email = config.getboolean("general", "use_email")
+                sleeping_time = config.getint("general", "sleeping_time")
+                if use_email:
+                    username = config.get("email", "username")
+                    pwd = config.get("email", "password")
+                scheduler = build_scheduler(config)
+            except BaseException as e:
+                print("Caught the following exception during the parsing of the configuration file: %s" % str(e), file=sys.stderr)
+                exit(1)
+            
             while True:
                 # check the scheduler
                 if scheduler.is_feeding_time():
                     feed(config)
                     scheduler.set_next()
                 
-                # check the email
-                try:
-                    wrapper = GmailWrapper(username, pwd)
-                    ids = wrapper.get_unread_ids_by_subject("cibo")
-                    if len(ids) > 0:
-                        wrapper.mark_as_read(ids)
-                        feed(config)
-                    
-                    sleep(sleeping_time)
-                except BaseException as e:
-                    print("Caught the followin exception while trying to access the email: %s" % str(e))
+                # check the email if necessary
+                if use_email:
+                    try:
+                        wrapper = GmailWrapper(username, pwd)
+                        ids = wrapper.get_unread_ids_by_subject("cibo")
+                        if len(ids) > 0:
+                            wrapper.mark_as_read(ids)
+                            feed(config)
+                        
+                        sleep(sleeping_time)
+                    except BaseException as e:
+                        print("Caught the following exception while trying to access the email: %s" % str(e), file=sys.stderr)
 
