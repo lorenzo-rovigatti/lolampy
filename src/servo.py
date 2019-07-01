@@ -20,7 +20,7 @@ try:
     
         def do_cycle(self, cycle_duty):
             self._servo.ChangeDutyCycle(cycle_duty)
-            time.sleep(0.7)
+            time.sleep(1.0)
     
         def clean(self):
             self._servo.stop()
