@@ -51,7 +51,7 @@ class PeriodicScheduler(Scheduler):
         
     def set_next(self):
         self.next = (datetime.datetime.combine(datetime.date.today(), self.next) + self.feed_every).time()
-        print("Next time: %s" % str(self.next), file=sys.stderr)
+        print("%s: next time: %s" % (datetime.datetime.now(), str(self.next)), file=sys.stderr)
 
         
 class FixedScheduler(Scheduler):
@@ -64,9 +64,20 @@ class FixedScheduler(Scheduler):
             hh, mm = [int(x) for x in t.split(":")]
             times.append(datetime.time(hh, mm))
             
-        self.times = cycle(times)
-        self.next = next(self.times)
+        # function used to sort times according to the proximity from the current time
+        def distance_from_now(t):
+            delta = compute_delta(t)
+            if delta.days < 0:
+                return -delta.seconds
+            else:
+                return 86400 - delta.seconds
+            
+        sorted_times = sorted(times, key=distance_from_now)
+        print("Sorted times: %s" % ", ".join([str(t) for t in sorted_times]), file=sys.stderr)
+                    
+        self.times = cycle(sorted_times)
+        self.set_next()
         
     def set_next(self):
         self.next = next(self.times)
-        print("Next time: %s" % str(self.next), file=sys.stderr)
+        print("%s: next time: %s" % (datetime.datetime.now(), str(self.next)), file=sys.stderr)
