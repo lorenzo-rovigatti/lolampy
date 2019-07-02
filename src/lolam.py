@@ -38,7 +38,8 @@ def get_config(config_file):
         exit(1)
     
     defaults = {
-        "use_email" : True
+        "use_email" : True,
+        "send_confirmation" : False
     }
     
     config = configparser.SafeConfigParser(defaults=defaults)
@@ -71,16 +72,25 @@ if __name__ == '__main__':
                 if use_email:
                     username = config.get("email", "username")
                     pwd = config.get("email", "password")
+                    send_confirmation = config.getboolean("email", "send_confirmation")
+                    if send_confirmation:
+                        confirmation_address = config.get("email", "send_confirmation_to")
                 scheduler = build_scheduler(config)
             except BaseException as e:
                 print("Caught the following exception during the parsing of the configuration file: %s" % str(e), file=sys.stderr)
                 exit(1)
-            
+                
             while True:
                 # check the scheduler
                 if scheduler.is_feeding_time():
                     feed(config)
                     scheduler.set_next()
+                    if use_email and send_confirmation:
+                        try:
+                            wrapper = GmailWrapper(username, pwd)
+                            wrapper.send_confirmation(confirmation_address)
+                        except BaseException as e:
+                            print("Caught the following exception while trying to send a confirmation email: %s" % str(e), file=sys.stderr)
                 
                 # check the email if necessary
                 if use_email:

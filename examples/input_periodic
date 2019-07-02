@@ -1,9 +1,13 @@
 [general]
 sleeping_time = 10
+# set it to False to disable email support 
+use_email = True
 
 [email]
 username = myusername
 password = mypassword
+send_confirmation = True
+send_confirmation_to = some.address@email.com
 
 [scheduler]
 type = periodic
